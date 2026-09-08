@@ -9,8 +9,11 @@
  *     (via requirePatientProfile).
  *
  * Passes the patient's FHIR integer ID and session userId/orgId to the
- * client-side BookAppointment wizard. Reads optional `?intake_id` query param
- * set when navigating from the post-intake modal.
+ * client-side BookAppointment wizard. The optional `?intake_id` query param
+ * (set when navigating from the post-intake modal) is read client-side by
+ * BookAppointment itself via useSearchParams — not threaded through here —
+ * so the value used at booking time always reflects the live URL rather
+ * than a copy captured at this page's initial render.
  *
  * All FHIR data fetching (practitioner roles, slots, booking) happens on the
  * client via ZSA server actions — this page only handles auth guards.
@@ -38,11 +41,7 @@ function formatPatientName(patient: TPatientResponse): string {
   return parts.join(" ");
 }
 
-async function BookAppointmentPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+async function BookAppointmentPage() {
   const session = await getServerSession();
   const locale = await getLocale();
 
@@ -54,18 +53,12 @@ async function BookAppointmentPage({
   // Redirects to /patient/profile if no FHIR Patient record exists
   const patient = await requirePatientProfile();
 
-  // Read intake_id query param — set when navigating from the post-intake modal
-  const params = await searchParams;
-  const rawIntakeId = params["intake_id"];
-  const intakeId = rawIntakeId ? Number(rawIntakeId) : undefined;
-
   return (
     <BookAppointment
       patientFhirId={patient.id}
       patientDisplayName={formatPatientName(patient)}
       userId={session.user.id}
       orgId={session.session.activeOrganizationId ?? ""}
-      intakeId={Number.isFinite(intakeId) ? intakeId : undefined}
     />
   );
 }

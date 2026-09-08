@@ -5,16 +5,17 @@ FROM node:22-alpine AS base
 # ─── deps: install node_modules via pnpm ─────────────────────────────────────
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
-RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN corepack enable && corepack prepare pnpm@11.4.0 --activate
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY vendor ./vendor
+COPY patches ./patches
 RUN pnpm install --frozen-lockfile
 
 # ─── builder: prisma generate + next build ────────────────────────────────────
 FROM base AS builder
-RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN corepack enable && corepack prepare pnpm@11.4.0 --activate
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
