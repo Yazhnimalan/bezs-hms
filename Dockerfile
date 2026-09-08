@@ -48,7 +48,11 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Generate the Prisma client (output: ./prisma/generated/prisma)
-RUN pnpm dlx prisma generate --schema ./prisma/schema/schema.prisma
+# Uses the pinned prisma devDependency via `exec` — `dlx` always fetches
+# npm's current `prisma@latest`, which can silently diverge from the
+# version this project actually depends on (and has broken builds when
+# that latest release changed its CLI surface).
+RUN pnpm exec prisma generate --schema ./prisma/schema/schema.prisma
 
 RUN pnpm run build
 
