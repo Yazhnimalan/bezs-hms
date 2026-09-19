@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OAuthPkceButton } from "@/modules/client/auth/components/OAuthPkceButton";
 import { ThemeSwitcher } from "@/theme/ThemeSwitcher";
-import LocaleSwitcher from "@/modules/client/shared/components/LocaleSwitcher";
 import { NavUser } from "@/modules/client/shared/components/NavUser";
 import { Link, useRouter } from "@/i18n/navigation";
 import { motion } from "framer-motion";
@@ -107,7 +106,6 @@ export default function RootNavbar({
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <LocaleSwitcher />
             <ThemeSwitcher />
             {!user ? (
               <>
